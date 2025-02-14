@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>iSoft Manage Appointments</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .section {
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin: 10px 0 5px;
+            color: #333;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .backToMainBtn, #addAppointmentForm button, .editBtn, .deleteBtn {
+            width: 140px;
+            height: 30px;
+            border-radius: 5px;
+            justify-content: center;
+            align-self: center;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .backToMainBtn:hover, #addAppointmentForm button:hover, .editBtn:hover, .deleteBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #addAppointmentSection h3, #allAppointmentsSection h3 {
+            color: #333;
+        }
+
+        #allAppointmentsList {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        #allAppointmentsList li {
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #f4f4f4;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #allAppointmentsList li:hover {
+            background-color: #e9ecef;
+        }
+
+        input[type="date"],
+        input[type="time"],
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="date"]:hover,
+        input[type="time"]:hover,
+        input[type="text"]:hover,
+        input[type="number"]:hover,
+        input[type="tel"]:hover {
+            border-color: #007BFF;
+        }
+
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="tel"]:focus {
+            border-color: #0056b3;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+        }
+
+        input[type="date"]:not(:placeholder-shown),
+        input[type="time"]:not(:placeholder-shown),
+        input[type="text"]:not(:placeholder-shown),
+        input[type="number"]:not(:placeholder-shown),
+        input[type="tel"]:not(:placeholder-shown) {
+            border-color: #0056b3;
+        }
+
+        #editAppointmentForm {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            z-index: 1000;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js";
+        import { getDatabase, ref, set, get, remove, update } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCF12fthASAebFgXGw7Wyd_gk6cN8puUZo",
+            authDomain: "cproject-d5554.firebaseapp.com",
+            databaseURL: "https://cproject-d5554-default-rtdb.firebaseio.com",
+            projectId: "cproject-d5554",
+            storageBucket: "cproject-d5554.appspot.com",
+            messagingSenderId: "43978993462",
+            appId: "1:43978993462:web:03d86fc87603c67f5a8d97",
+            measurementId: "G-8HQXLXRHWJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let userId;
+
+        function addAppointment(date, time, description, price, notes, phoneNumber) {
+            set(ref(db, 'appointments/' + userId + '/' + date + '/' + time), {
+                description: description,
+                price: price,
+                notes: notes,
+                phoneNumber: phoneNumber
+            }).then(() => {
+                alert("Appointment added!");
+                displayAppointments();
+            });
+        }
+
+        function deleteAppointment(date, time) {
+            remove(ref(db, 'appointments/' + userId + '/' + date + '/' + time)).then(() => {
+                alert("Appointment deleted!");
+                displayAppointments();
+            });
+        }
+
+        function editAppointment(oldDate, oldTime, date, time, description, price, notes, phoneNumber) {
+            const updates = {};
+            updates['appointments/' + userId + '/' + oldDate + '/' + oldTime] = null;
+            updates['appointments/' + userId + '/' + date + '/' + time] = {
+                description: description,
+                price: price,
+                notes: notes,
+                phoneNumber: phoneNumber
+            };
+            update(ref(db), updates).then(() => {
+                alert("Appointment updated!");
+                displayAppointments();
+                document.getElementById("editAppointmentForm").style.display = 'none';
+                document.getElementById("overlay").style.display = 'none';
+            });
+        }
+
+        function displayAppointments(searchTerm = '') {
+            const appointmentsRef = ref(db, 'appointments/' + userId);
+            get(appointmentsRef).then((snapshot) => {
+                const appointments = snapshot.val();
+                const appointmentsList = document.getElementById("allAppointmentsList");
+                appointmentsList.innerHTML = '';
+
+                if (appointments) {
+                    Object.keys(appointments).forEach((date) => {
+                        const dailyAppointments = appointments[date];
+                        Object.keys(dailyAppointments).forEach((time) => {
+                            const appointment = dailyAppointments[time];
+                            if (appointment.description.toLowerCase().includes(searchTerm.toLowerCase()) || appointment.notes.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                const appointmentItem = document.createElement('li');
+                                appointmentItem.innerHTML = `${date} ${time}: ${appointment.description} - $${appointment.price} - ${appointment.notes} - ${appointment.phoneNumber}`;
+                                
+                                const editBtn = document.createElement('button');
+                                editBtn.className = 'editBtn';
+                                editBtn.textContent = 'Edit';
+                                editBtn.onclick = () => showEditForm(date, time, appointment.description, appointment.price, appointment.notes, appointment.phoneNumber);
+                                
+                                const deleteBtn = document.createElement('button');
+                                deleteBtn.className = 'deleteBtn';
+                                deleteBtn.textContent = 'Delete';
+                                deleteBtn.onclick = () => deleteAppointment(date, time);
+                                
+                                appointmentItem.appendChild(editBtn);
+                                appointmentItem.appendChild(deleteBtn);
+                                appointmentsList.appendChild(appointmentItem);
+                            }
+                        });
+                    });
+                } else {
+                    appointmentsList.innerHTML = '<li>No appointments found.</li>';
+                }
+            });
+        }
+
+        function showEditForm(date, time, description, price, notes, phoneNumber) {
+            document.getElementById("editAppointmentForm").style.display = 'block';
+            document.getElementById("overlay").style.display = 'block';
+            document.getElementById("editOldDate").value = date;
+            document.getElementById("editOldTime").value = time;
+            document.getElementById("editDate").value = date;
+            document.getElementById("editTime").value = time;
+            document.getElementById("editDescription").value = description;
+            document.getElementById("editPrice").value = price;
+            document.getElementById("editNotes").value = notes;
+            document.getElementById("editPhoneNumber").value = phoneNumber;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    displayAppointments();
+
+                    document.getElementById("addAppointmentForm").addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        const date = document.getElementById("date").value;
+                        const time = document.getElementById("time").value;
+                        const description = document.getElementById("description").value;
+                        const price = document.getElementById("price").value;
+                        const notes = document.getElementById("notes").value;
+                        const phoneNumber = document.getElementById("phoneNumber").value;
+                        addAppointment(date, time, description, price, notes, phoneNumber);
+                    });
+
+                    document.getElementById("searchAppointments").addEventListener('input', function () {
+                        const searchTerm = document.getElementById("searchAppointments").value;
+                        displayAppointments(searchTerm);
+                    });
+
+                    document.getElementById("editAppointmentForm").addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        const oldDate = document.getElementById("editOldDate").value;
+                        const oldTime = document.getElementById("editOldTime").value;
+                        const date = document.getElementById("editDate").value;
+                        const time = document.getElementById("editTime").value;
+                        const description = document.getElementById("editDescription").value;
+                        const price = document.getElementById("editPrice").value;
+                        const notes = document.getElementById("editNotes").value;
+                        const phoneNumber = document.getElementById("editPhoneNumber").value;
+                        editAppointment(oldDate, oldTime, date, time, description, price, notes, phoneNumber);
+                    });
+
+                    document.getElementById("overlay").addEventListener('click', function () {
+                        document.getElementById("editAppointmentForm").style.display = 'none';
+                        document.getElementById("overlay").style.display = 'none';
+                    });
+                } else {
+                    window.location.href = "login.html";
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="overlay"></div>
+
+    <div id="mainSection" class="section">
+        <h2>Randevularınızın Idaresi</h2>
+    </div>
+
+    <div id="allAppointmentsSection" class="section">
+        <h3>Bütün Randevularınız</h3>
+        <input type="text" id="searchAppointments" placeholder="Search appointments">
+        <ul id="allAppointmentsList"></ul>
+    </div>
+
+    <div id="addAppointmentSection" class="section">
+        <h3>Randevu Elave Et</h3>
+        <form id="addAppointmentForm">
+            <label for="date">Tarix:</label>
+            <input type="date" id="date" name="date" required>
+            <label for="time">Saat:</label>
+            <input type="time" id="time" name="time" required>
+            <label for="description">Müşteri Melumatları:</label>
+            <input type="text" id="description" name="description" required>
+            <label for="price">Ödeniş</label>
+            <input type="number" id="price" name="price" required>
+            <label for="notes">Geydiniz:</label>
+            <input type="text" id="notes" name="notes">
+            <label for="phoneNumber">Pasient Nömresi:</label>
+            <input type="tel" id="phoneNumber" name="phoneNumber" required>
+            <button type="submit">Elave Et</button>
+        </form>
+    </div>
+
+    <div id="editAppointmentForm" class="section">
+        <h3>Edit Appointment</h3>
+        <form id="editAppointmentForm">
+            <input type="hidden" id="editOldDate">
+            <input type="hidden" id="editOldTime">
+            <label for="editDate">Date:</label>
+            <input type="date" id="editDate" name="date" required>
+            <label for="editTime">Time:</label>
+            <input type="time" id="editTime" name="time" required>
+            <label for="editDescription">Description:</label>
+            <input type="text" id="editDescription" name="description" required>
+            <label for="editPrice">Price:</label>
+            <input type="number" id="editPrice" name="price" required>
+            <label for="editNotes">Notes:</label>
+            <input type="text" id="editNotes" name="notes">
+            <label for="editPhoneNumber">Phone Number:</label>
+            <input type="tel" id="editPhoneNumber" name="phoneNumber" required>
+            <button type="submit">Update</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,209 @@
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--clr-white);
+  }
+  
+  label {
+    margin: 10px 0px 5px;
+    color: var(--clr-dark);
+  }
+  
+  input {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--clr-white);
+    border-radius: 5px;
+  }
+  
+  /* Back Button Styles */
+  
+  .backToMainBtn {
+    background-color: var(--clr-primary); /* Use CSS variable with fallback */
+    height: 6%;
+    width: 28%;
+    align-self: center; /* Center the button within the section */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Transition for color change */
+    color: white;
+  }
+  .backToMainBtn:hover {
+    background-color:var(--clr-dark-variant);
+    color: white;
+  }
+  
+  .backToMainBtn:active {
+    background-color:var(--clr-dark-variant);
+  }
+  
+  #addAppointmentForm button {
+    width: 140px;
+    height: 30px;  
+    border-radius: 5px;
+    justify-content: center;
+    align-self: center; /* Center the button within the form */
+    background-color:var(--clr-primary);
+    color: white; 
+  }
+  #addAppointmentSection h3{
+    color: var(--clr-dark);
+  }
+  #allAppointmentsSection h3{
+    color: var(--clr-dark);
+  
+  }
+  #addAppointmentForm button:hover{
+  background-color: var(--clr-primary-variant);
+  }
+  #addAppointmentBtn:hover{
+    background-color: var(--clr-success);
+    transition: transform 0.2s, background-color 0.2s;
+  }
+  
+  #addAppointmentBtn{
+    background-color:var(--clr-white-);
+    border-radius: 10px;
+    border: 1px solid var(--clr-info-light);
+    width: 130px;
+    height: 40px;
+    color: var(--clr-dark);
+  }
+  
+  #addAppointmentBtn active {
+    transform: scale(1.2);
+    background-color:var(--clr-success)
+  }
+  
+  #allAppointmentsSection {
+    width: 50%;
+    background-color: var(--clr-white);
+  }
+  
+  
+  #allAppointmentsSection ul{
+    color: var(--clr-dark);
+    margin-bottom: 50px;
+  }
+  
+  #addAppointmentSection {
+    width: 40%;
+    background-color: var(--clr-white);
+    
+  }
+  
+  #viewAllAppointmentsBtn:hover{
+    background-color: var(--clr-success);
+    transition: transform 0.2s, background-color 0.2s;
+  
+  }
+  #viewAllAppointmentsBtn{
+    background-color:var(--clr-white-);
+    border-radius: 10px;
+    border: 1px solid var(--clr-info-light);
+    width: 130px;
+    height: 40px;
+    color: var(--clr-dark);
+  }
+  
+  #viewAllAppointmentsBtn active {
+    transform: scale(1.2);
+    background-color:var(--clr-success)
+  }
+  
+  #allAppointmentsList {
+    list-style-type: none;
+    padding: 0; 
+    margin: 20px 0px; /* Add spacing between list items */
+  
+  }
+  
+  ul li{
+    padding: 10px;
+    margin: 10px 0; /* Add spacing between list items */
+    background-color: var(--clr-color-background);
+  
+  
+  
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  
+  }
+  
+  ul li:hover {
+  background-color: var(--clr-info-light);}
+  
+  ul li{
+    margin-bottom: 16px;
+    font-size: small;
+    color: var(--clr-dark);
+    border: var(--clr-dark);
+  
+  }
+  
+  li{
+    background-color: var(--clr-dark);
+  }
+  
+  #addAppointmentForm input{
+    border: var(--clr-dark);
+    font-size: small;
+  }
+  #editAppointmentSection input{
+    border: var(--clr-dark);
+    font-size: small;
+  
+  }
+  /* Genel stiller */
+  input[type="date"],
+  input[type="time"],
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  /* Alanlar üzerinde gezinildiğinde */
+  input[type="date"]:hover,
+  input[type="time"]:hover,
+  input[type="text"]:hover,
+  input[type="number"]:hover,
+  input[type="tel"]:hover {
+    border-color: var(--clr-info-dark);
+  }
+  
+  /* Alanlara tıklanınca (odaklanınca) */
+  input[type="date"]:focus,
+  input[type="time"]:focus,
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  input[type="tel"]:focus {
+      border-color: var(--clr-primary-variant);
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+  }
+  
+  /* İçinde metin olduğunda */
+  input[type="date"]:not(:placeholder-shown),
+  input[type="time"]:not(:placeholder-shown),
+  input[type="text"]:not(:placeholder-shown),
+  input[type="number"]:not(:placeholder-shown),
+  input[type="tel"]:not(:placeholder-shown) {
+      border-color: var(--clr-primary-variant);
+  }
+  
+  #addAppointmentForm input{
+    background-color:var(--clr-light);
+  
+  }
+  
